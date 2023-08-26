@@ -1,7 +1,72 @@
+"use client";
 import Image from "next/image";
 import { ContentWrapper } from "./components/PageWrapper/ContentWrapper";
+import { useReducer } from "react";
+
+type Tijolos = "tijolo10" | "tijolo11" | "tijolo15";
+
+type State = {
+  tijolo10: number;
+  tijolo11: number;
+  tijolo15: number;
+};
+
+type Action =
+  | {
+      type: "change";
+      name: Tijolos;
+      value: string;
+    }
+  | {
+      type: "calculate-10";
+    }
+  | {
+      type: "calculate-11";
+    }
+  | {
+      type: "calculate-15";
+    };
+
+enum MaxQuantities {
+  tijolo10 = 6000,
+  tijolo11 = 5000,
+  tijolo15 = 4000,
+}
+
+const maxQuantitiesMap: Record<Tijolos, number> = {
+  tijolo10: MaxQuantities.tijolo10,
+  tijolo11: MaxQuantities.tijolo11,
+  tijolo15: MaxQuantities.tijolo15,
+};
+
+function reducer(state: State, action: Action) {
+  if (action.type === "change") {
+    let value =
+      parseInt(action.value) > maxQuantitiesMap[action.name]
+        ? maxQuantitiesMap[action.name]
+        : parseInt(action.value);
+
+    return { ...state, [action.name]: value };
+  }
+  if (action.type === "calculate-10") {
+    return state;
+  }
+  if (action.type === "calculate-11") {
+    return state;
+  }
+  if (action.type === "calculate-15") {
+    return state;
+  }
+  throw Error("Unknown action.");
+}
 
 export default function Home() {
+  const [state, dispatch] = useReducer(reducer, {
+    tijolo10: 0,
+    tijolo11: 0,
+    tijolo15: 0,
+  });
+
   return (
     <div className="flex min-h-screen flex-col p-4">
       <ContentWrapper>
@@ -10,8 +75,8 @@ export default function Home() {
             className=""
             src="/logo.jpeg"
             alt="Logo"
-            width={120}
-            height={120}
+            width={160}
+            height={160}
             priority
           />
           <h1 className="text-xl">Calculadora de Tijolos</h1>
@@ -27,16 +92,28 @@ export default function Home() {
                 htmlFor="tijolo10"
                 className="w-52 sm:self-center self-start"
               >
-                Tijolo 10 (até 6000 tijolos)
+                Tijolo 10 (até {MaxQuantities.tijolo10} tijolos)
               </label>
               <input
                 id="tijolo10"
+                value={state.tijolo10}
+                onChange={(e) =>
+                  dispatch({
+                    type: "change",
+                    name: "tijolo10",
+                    value: e.target.value,
+                  })
+                }
+                onFocus={(e) => e.target.select()}
                 type="number"
                 min={0}
                 max={6000}
                 className="border p-3 rounded-lg w-full sm:w-auto"
               />
-              <button className="bg-blue-400 text-white px-6 py-3 rounded-lg sm:w-auto w-full hover:opacity-80 active:opacity-60">
+              <button
+                onClick={() => dispatch({ type: "calculate-10" })}
+                className="bg-blue-400 text-white px-6 py-3 rounded-lg sm:w-auto w-full hover:opacity-80 active:opacity-60"
+              >
                 Calcular
               </button>
             </div>
@@ -45,10 +122,19 @@ export default function Home() {
                 htmlFor="tijolo11"
                 className="w-52 sm:self-center self-start"
               >
-                Tijolo 11 (até 5000 tijolos)
+                Tijolo 11 (até {MaxQuantities.tijolo11} tijolos)
               </label>
               <input
                 id="tijolo11"
+                value={state.tijolo11}
+                onChange={(e) =>
+                  dispatch({
+                    type: "change",
+                    name: "tijolo11",
+                    value: e.target.value,
+                  })
+                }
+                onFocus={(e) => e.target.select()}
                 type="number"
                 min={0}
                 max={5000}
@@ -63,10 +149,19 @@ export default function Home() {
                 htmlFor="tijolo15"
                 className="w-52 sm:self-center self-start"
               >
-                Tijolo 15 (até 4000 tijolos)
+                Tijolo 15 (até {MaxQuantities.tijolo15} tijolos)
               </label>
               <input
                 id="tijolo15"
+                value={state.tijolo15}
+                onChange={(e) =>
+                  dispatch({
+                    type: "change",
+                    name: "tijolo15",
+                    value: e.target.value,
+                  })
+                }
+                onFocus={(e) => e.target.select()}
                 type="number"
                 min={0}
                 max={4000}
