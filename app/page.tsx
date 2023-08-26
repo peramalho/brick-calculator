@@ -25,6 +25,9 @@ type Action =
     }
   | {
       type: "calculate-15";
+    }
+  | {
+      type: "clear";
     };
 
 enum MaxQuantities {
@@ -39,6 +42,12 @@ const maxQuantitiesMap: Record<Tijolos, number> = {
   tijolo15: MaxQuantities.tijolo15,
 };
 
+const initialState = {
+  tijolo10: 0,
+  tijolo11: 0,
+  tijolo15: 0,
+};
+
 function reducer(state: State, action: Action) {
   if (action.type === "change") {
     let value =
@@ -49,23 +58,38 @@ function reducer(state: State, action: Action) {
     return { ...state, [action.name]: value };
   }
   if (action.type === "calculate-10") {
-    return state;
+    const tijolo10 =
+      (1 -
+        state.tijolo11 / MaxQuantities.tijolo11 -
+        state.tijolo15 / MaxQuantities.tijolo15) *
+      MaxQuantities.tijolo10;
+    return { ...state, tijolo10: Math.round(tijolo10) };
   }
   if (action.type === "calculate-11") {
-    return state;
+    console.log(state.tijolo10);
+    const tijolo11 =
+      (1 -
+        state.tijolo10 / MaxQuantities.tijolo10 -
+        state.tijolo15 / MaxQuantities.tijolo15) *
+      MaxQuantities.tijolo11;
+    return { ...state, tijolo11: Math.round(tijolo11) };
   }
   if (action.type === "calculate-15") {
-    return state;
+    const tijolo15 =
+      (1 -
+        state.tijolo10 / MaxQuantities.tijolo10 -
+        state.tijolo11 / MaxQuantities.tijolo11) *
+      MaxQuantities.tijolo15;
+    return { ...state, tijolo15: Math.round(tijolo15) };
+  }
+  if (action.type === "clear") {
+    return initialState;
   }
   throw Error("Unknown action.");
 }
 
 export default function Home() {
-  const [state, dispatch] = useReducer(reducer, {
-    tijolo10: 0,
-    tijolo11: 0,
-    tijolo15: 0,
-  });
+  const [state, dispatch] = useReducer(reducer, initialState);
 
   return (
     <div className="flex min-h-screen flex-col p-4">
@@ -83,7 +107,10 @@ export default function Home() {
         </header>
         <main className="mt-6 flex flex-col items-center gap-6">
           <h2>Quantos tijolos cabem em um caminhão?</h2>
-          <button className="bg-red-400 text-white px-12 py-3 rounded-lg sm:w-auto w-full hover:opacity-80 active:opacity-60">
+          <button
+            onClick={() => dispatch({ type: "clear" })}
+            className="bg-red-400 text-white px-12 py-3 rounded-lg sm:w-auto w-full hover:opacity-80 active:opacity-60"
+          >
             Resetar
           </button>
           <div className="flex flex-col gap-8 w-full sm:w-auto">
@@ -140,7 +167,10 @@ export default function Home() {
                 max={5000}
                 className="border p-3 rounded-lg w-full sm:w-auto"
               />
-              <button className="bg-blue-400 text-white px-6 py-3 rounded-lg sm:w-auto w-full hover:opacity-80 active:opacity-60">
+              <button
+                onClick={() => dispatch({ type: "calculate-11" })}
+                className="bg-blue-400 text-white px-6 py-3 rounded-lg sm:w-auto w-full hover:opacity-80 active:opacity-60"
+              >
                 Calcular
               </button>
             </div>
@@ -167,7 +197,10 @@ export default function Home() {
                 max={4000}
                 className="border p-3 rounded-lg w-full sm:w-auto"
               />
-              <button className="bg-blue-400 text-white px-6 py-3 rounded-lg sm:w-auto w-full hover:opacity-80 active:opacity-60">
+              <button
+                onClick={() => dispatch({ type: "calculate-15" })}
+                className="bg-blue-400 text-white px-6 py-3 rounded-lg sm:w-auto w-full hover:opacity-80 active:opacity-60"
+              >
                 Calcular
               </button>
             </div>
